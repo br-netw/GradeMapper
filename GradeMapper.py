@@ -9,7 +9,7 @@ class MainMenu():
 
         self.window = Tk()
         self.window.title("GradeMapper")
-        self.window.geometry("340x100")
+        self.window.geometry("180x100")
         
         fileVals = open("gradeTypes.json", "r", encoding="utf8")
         vals = list(json.load(fileVals).keys()) # Загружаем список типов оценок
@@ -19,13 +19,13 @@ class MainMenu():
         self.measures.set(vals[0])
 
         self.mainMenu = OptionMenu(self.window, self.measures, *vals)
-        self.mainMenu.grid(row = 1, column = 0)
+        self.mainMenu.grid(row = 2, column = 0)
 
         self.startButton = Button(self.window, text = "Запустить", command = self.bootstrap)
-        self.startButton.grid(row = 1, column = 1)
+        self.startButton.grid(row = 1, column = 0)
 
         self.nameLabel = Label(self.window, text="GradeMapper", font=("Arial Bold", 20))
-        self.nameLabel.grid(row=0, column=1)
+        self.nameLabel.grid(row=0, column=0)
 
     def bootstrap(self):
 
@@ -51,7 +51,7 @@ class Converter():
 
         self.window = Toplevel(menu.window)
         self.window.title("GradeMapper " + valType.capitalize())
-        self.window.geometry("335x120")
+        self.window.geometry("270x120")
         #print(list(self.convVals.keys()))
 
         keys = list(self.convVals.keys())
@@ -65,14 +65,14 @@ class Converter():
         self.grade.grid(row = 1, column = 0)
 
         self.avgGrade = Text(self.window, height = 2, width = 16)
-        self.avgGrade.grid(row = 2, column = 0)
+        self.avgGrade.grid(row = 3, column = 0)
 
         ## Кнопки
 
         self.logButton = Button(self.window, text="Загрузить оценку", command=self.logGrade)
         self.logButton.grid(row=0, column=1)
         self.submitButton = Button(self.window, text="Рассчитать", command=self.submit)
-        self.submitButton.grid(row=1, column=1)
+        self.submitButton.grid(row=3, column=1)
 
         self.createUnitMenus()
 
