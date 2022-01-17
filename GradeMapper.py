@@ -9,8 +9,8 @@ class MainMenu():
 
         self.window = Tk()
         self.window.title("GradeMapper")
-        self.window.geometry("180x100")
-        
+        self.window.geometry("150x90")
+        self.window.configure(bg="white")
         fileVals = open("gradeTypes.json", "r", encoding="utf8")
         vals = list(json.load(fileVals).keys()) # Загружаем список типов оценок
         fileVals.close()
@@ -26,7 +26,6 @@ class MainMenu():
 
         self.nameLabel = Label(self.window, text="GradeMapper", font=("Arial Bold", 20))
         self.nameLabel.grid(row=0, column=0)
-
     def bootstrap(self):
 
         #print(self.measures.get())
@@ -51,8 +50,9 @@ class Converter():
 
         self.window = Toplevel(menu.window)
         self.window.title("GradeMapper " + valType.capitalize())
-        self.window.geometry("270x120")
+        self.window.geometry("500x120")
         #print(list(self.convVals.keys()))
+        self.window.configure(bg="white")
 
         keys = list(self.convVals.keys())
         
@@ -107,7 +107,7 @@ class Converter():
         #print(self.gradesWeighted, self.weightsSum)
 
     def submit(self):
-
+        self.avgGrade.delete('1.0', 'end')
         self.avgGrade.insert("end", round(self.gradesWeighted / self.weightsSum, 2))
 
 menu = MainMenu()
