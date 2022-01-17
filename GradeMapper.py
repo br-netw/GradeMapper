@@ -61,10 +61,10 @@ class Converter():
         self.gradeType.set(keys[0])
 
         ## Текстбокс
-        self.grade = Text(self.window, height = 2, width = 16)
+        self.grade = Text(self.window, height = 2, width = 4)
         self.grade.grid(row = 1, column = 0)
 
-        self.avgGrade = Text(self.window, height = 2, width = 16)
+        self.avgGrade = Text(self.window, height = 2, width = 20)
         self.avgGrade.grid(row = 3, column = 0)
 
         ## Кнопки
