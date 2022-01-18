@@ -30,6 +30,12 @@ class MainMenu():
         self.menu = QComboBox()
         for i in self.subjects:
             self.menu.addItem(i)
+            
+        ## Название
+
+        self.nameLabel = QLabel()
+        self.nameLabel.setAlignment(Qt.AlignCenter)
+        self.nameLabel.setText("GradeMapper")
 
         self.grid.addWidget(self.startButton, 0, 0, 1, 2)
         self.grid.addWidget(self.menu, 1, 0, 1, 2)
