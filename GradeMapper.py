@@ -70,10 +70,12 @@ class GradeCalculator():
 
         keys = list(self.types.keys())
 
-        ## Текстбоксы ввода-вывода
+        ## Текст ввода-вывода
 
         self.gradeIn = QLineEdit(self.window)
-        self.gradeOut = QLineEdit(self.window)
+        self.gradeOut = QLabel(self.window)
+        self.gradeOut.setAlignment(Qt.AlignCenter)
+        self.gradeOut.setText("Оценка: -")
 
         ## Кнопки "Загрузить" и "Вычислить"
 
@@ -121,7 +123,7 @@ class GradeCalculator():
         self.weightsSum += currentWorkWeight
         self.gradesWeighted += gr * currentWorkWeight
         
-        self.gradeOut.setText(str(round(self.gradesWeighted / self.weightsSum, 2)))
+        self.gradeOut.setText("Оценка: " + str(round(self.gradesWeighted / self.weightsSum, 2)))
 
         #print(self.weightsSum, self.gradesWeighted)
 
@@ -134,6 +136,8 @@ class GradeCalculator():
         
         self.weightsSum = 0
         self.gradesWeighted = 0
+        
+        self.gradeOut.setText("Оценка: -")
 
 if __name__ == "__main__":
     menu = MainMenu()
