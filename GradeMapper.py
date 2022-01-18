@@ -1,114 +1,136 @@
-from tkinter import *
+import sys
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 import json
-
-## Около 50% кода в этом файле украдены с моего собственного проекта. Имейте в виду.
 
 class MainMenu():
 
     def __init__(self):
 
-        self.window = Tk()
-        self.window.title("GradeMapper")
-        self.window.geometry("150x90")
-        self.window.configure(bg="white")
         fileVals = open("gradeTypes.json", "r", encoding="utf8")
-        vals = list(json.load(fileVals).keys()) # Загружаем список типов оценок
+        self.subjects = list(json.load(fileVals).keys())
         fileVals.close()
 
-        self.measures = StringVar()
-        self.measures.set(vals[0])
+        self.app = QApplication(sys.argv)
 
-        self.mainMenu = OptionMenu(self.window, self.measures, *vals)
-        self.mainMenu.grid(row = 2, column = 0)
+        self.grid = QGridLayout()
+        self.window = QDialog()
+        self.window.setLayout(self.grid)
 
-        self.startButton = Button(self.window, text = "Запустить", command = self.bootstrap)
-        self.startButton.grid(row = 1, column = 0)
+        ## Кнопка старта
 
-        self.nameLabel = Label(self.window, text="GradeMapper", font=("Arial Bold", 20))
-        self.nameLabel.grid(row=0, column=0)
+        self.startButton = QPushButton(self.window)
+        self.startButton.setText("Начать")
+        #self.startButton.move(25, 25)
+        self.startButton.clicked.connect(self.bootstrap)
+
+        ## Меню
+
+        self.menu = QComboBox()
+        for i in self.subjects:
+            self.menu.addItem(i)
+            
+        ## Название
+
+        self.nameLabel = QLabel()
+        self.nameLabel.setAlignment(Qt.AlignCenter)
+        self.nameLabel.setText("GradeMapper")
+
+        self.grid.addWidget(self.startButton, 1, 0, 1, 2)
+        self.grid.addWidget(self.menu, 2, 0, 1, 2)
+        self.grid.addWidget(self.nameLabel, 0, 0, 1, 2)
+        #self.grid.addWidget(self.out, 2, 0, 1, 2)
+        
+        self.window.setWindowTitle("GradeMapper PyQt")
+        self.window.setGeometry(100, 100, 0, 0)
+        self.window.show()
+
     def bootstrap(self):
 
-        #print(self.measures.get())
+        self.calc = GradeCalculator(self.menu.currentText())
+        self.calc.window.show()
+        
+class GradeCalculator():
 
-        newConverter = Converter(self.measures.get(), self) # Открываем окно конвертера для необходимой величины
+    def __init__(self, subject):
 
-        ## StackOverflow сказал не запускать больше одного mainloop()
-        #newConverter.window.mainloop()
+        #self.app = QApplication(sys.argv)
 
-class Converter():
-
-    def __init__(self, valType, menu):
-
-        #print(open("conversionValues-ru.json", "r", encoding="utf8").read())
-
+        self.grid = QGridLayout()
+        self.window = QDialog()
+        self.window.setLayout(self.grid)
+        
         self.gradesWeighted = 0
         self.weightsSum = 0
         
         fileVals = open("gradeTypes.json", "r", encoding="utf8")
-        self.convVals = json.load(fileVals)[valType]
+        self.types = json.load(fileVals)[subject]
         fileVals.close()
 
-        self.window = Toplevel(menu.window)
-        self.window.title("GradeMapper " + valType.capitalize())
-        self.window.geometry("500x120")
-        #print(list(self.convVals.keys()))
-        self.window.configure(bg="white")
+        keys = list(self.types.keys())
 
-        keys = list(self.convVals.keys())
+        ## Текстбоксы ввода-вывода
+
+        self.gradeIn = QLineEdit(self.window)
+        self.gradeOut = QLineEdit(self.window)
+
+        ## Кнопки "Загрузить" и "Вычислить"
+
+        self.loadGradeButton = QPushButton(self.window)
+        self.calculateGradeButton = QPushButton(self.window)
+
+        self.loadGradeButton.clicked.connect(self.loadGrade)
+        self.calculateGradeButton.clicked.connect(self.calculateGrade)
+
+        self.loadGradeButton.setText("Загрузить оценку")
+        self.calculateGradeButton.setText("Вычислить среднее")
+
+        ## Меню с видами работ
         
-        ## Эти переменные содержат выбранные пункты меню с ЕИ
-        self.gradeType = StringVar()
-        self.gradeType.set(keys[0])
+        self.workMenu = QComboBox()
+        for i in self.types.keys():
+            self.workMenu.addItem(i)
 
-        ## Текстбокс
-        self.grade = Text(self.window, height = 2, width = 4)
-        self.grade.grid(row = 1, column = 0)
+        ## Сетка
 
-        self.avgGrade = Text(self.window, height = 2, width = 20)
-        self.avgGrade.grid(row = 3, column = 0)
+        self.grid.addWidget(self.workMenu, 0, 0, 1, 1)
+        self.grid.addWidget(self.gradeIn, 1, 0, 1, 1)
+        self.grid.addWidget(self.gradeOut, 2, 0, 1, 1)
+        self.grid.addWidget(self.loadGradeButton, 1, 1, 1, 1)
+        self.grid.addWidget(self.calculateGradeButton, 2, 1, 1, 1)
 
-        ## Кнопки
+        self.window.setWindowTitle("GradeMapper " + subject)
+        self.window.setGeometry(100, 100, 0, 0)
+        #self.window.show()
 
-        self.logButton = Button(self.window, text="Загрузить оценку", command=self.logGrade)
-        self.logButton.grid(row=0, column=1)
-        self.submitButton = Button(self.window, text="Рассчитать", command=self.submit)
-        self.submitButton.grid(row=3, column=1)
+    def loadGrade(self):
 
-        self.createUnitMenus()
-
-    def createUnitMenus(self):
-
-        # Создание меню для выбора величин
-
-        self.typeMenu = OptionMenu(self.window, self.gradeType, *list(self.convVals.keys()))
-        self.typeMenu.grid(row = 0, column = 0)
-
-    def logGrade(self):
-                    
-        currentGrade = self.grade.get(1.0, "end")
-        #print(self.gradeType.get())
-        currentGradeWeight = self.convVals[self.gradeType.get()]
-
-        self.grade.delete(1.0, "end")
-        self.avgGrade.delete(1.0, "end")
-
+        self.gradeOut.clear()
+                #print(self.gradeIn.text())
         try:
-            catch = int(currentGrade)
+            gr = int(self.gradeIn.text())
         except Exception:
-            self.avgGrade.insert("end", "Не является числом")
+            self.gradeOut.setText("Не является числом")
             return -1
 
-        if int(currentGrade) < 1 or int(currentGrade) > 5:
-            self.avgGrade.insert("end", "Невалидная оценка")
+        if gr < 1 or gr > 5:
+            self.gradeOut.setText("Не является оценкой")
             return -1
 
-        self.gradesWeighted += int(currentGrade) * currentGradeWeight
-        self.weightsSum += currentGradeWeight
-        #print(self.gradesWeighted, self.weightsSum)
+        currentWorkWeight = self.types[self.workMenu.currentText()]
+                    
+        self.weightsSum += currentWorkWeight
+        self.gradesWeighted += gr * currentWorkWeight
 
-    def submit(self):
-        self.avgGrade.delete('1.0', 'end')
-        self.avgGrade.insert("end", round(self.gradesWeighted / self.weightsSum, 2))
+        #print(self.weightsSum, self.gradesWeighted)
 
-menu = MainMenu()
-menu.window.mainloop()
+        self.gradeIn.clear()
+
+    def calculateGrade(self):
+
+        self.gradeOut.setText(str(round(self.gradesWeighted / self.weightsSum, 2)))
+
+if __name__ == "__main__":
+    menu = MainMenu()
+    sys.exit(menu.app.exec_())
