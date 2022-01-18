@@ -78,13 +78,13 @@ class GradeCalculator():
         ## Кнопки "Загрузить" и "Вычислить"
 
         self.loadGradeButton = QPushButton(self.window)
-        self.calculateGradeButton = QPushButton(self.window)
+        self.clearButton = QPushButton(self.window)
 
         self.loadGradeButton.clicked.connect(self.loadGrade)
-        self.calculateGradeButton.clicked.connect(self.calculateGrade)
+        self.clearButton.clicked.connect(self.clearGrade)
 
-        self.loadGradeButton.setText("Загрузить оценку")
-        self.calculateGradeButton.setText("Вычислить среднее")
+        self.loadGradeButton.setText("Загрузить и вычислить")
+        self.clearButton.setText("Очистить")
 
         ## Меню с видами работ
         
@@ -98,16 +98,14 @@ class GradeCalculator():
         self.grid.addWidget(self.gradeIn, 1, 0, 1, 1)
         self.grid.addWidget(self.gradeOut, 2, 0, 1, 1)
         self.grid.addWidget(self.loadGradeButton, 1, 1, 1, 1)
-        self.grid.addWidget(self.calculateGradeButton, 2, 1, 1, 1)
+        self.grid.addWidget(self.clearButton, 2, 1, 1, 1)
 
         self.window.setWindowTitle("GradeMapper " + subject)
         self.window.setGeometry(100, 100, 0, 0)
         #self.window.show()
 
     def loadGrade(self):
-
-        self.gradeOut.clear()
-                #print(self.gradeIn.text())
+        
         try:
             gr = int(self.gradeIn.text())
         except Exception:
@@ -122,14 +120,20 @@ class GradeCalculator():
                     
         self.weightsSum += currentWorkWeight
         self.gradesWeighted += gr * currentWorkWeight
+        
+        self.gradeOut.setText(str(round(self.gradesWeighted / self.weightsSum, 2)))
 
         #print(self.weightsSum, self.gradesWeighted)
 
         self.gradeIn.clear()
 
-    def calculateGrade(self):
-
-        self.gradeOut.setText(str(round(self.gradesWeighted / self.weightsSum, 2)))
+    def clearGrade(self):
+        
+        self.gradeIn.clear()
+        self.gradeOut.clear()
+        
+        self.weightsSum = 0
+        self.gradesWeighted = 0
 
 if __name__ == "__main__":
     menu = MainMenu()
