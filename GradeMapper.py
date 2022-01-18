@@ -37,8 +37,9 @@ class MainMenu():
         self.nameLabel.setAlignment(Qt.AlignCenter)
         self.nameLabel.setText("GradeMapper")
 
-        self.grid.addWidget(self.startButton, 0, 0, 1, 2)
-        self.grid.addWidget(self.menu, 1, 0, 1, 2)
+        self.grid.addWidget(self.startButton, 1, 0, 1, 2)
+        self.grid.addWidget(self.menu, 2, 0, 1, 2)
+        self.grid.addWidget(self.nameLabel, 0, 0, 1, 2)
         #self.grid.addWidget(self.out, 2, 0, 1, 2)
         
         self.window.setWindowTitle("GradeMapper PyQt")
