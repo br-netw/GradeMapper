@@ -69,6 +69,12 @@ class GradeCalculator():
         fileVals.close()
 
         keys = list(self.types.keys())
+        
+        ## Данные прошлого вывода
+        
+        self.lastGrade = 0
+        self.lastWeight = 1
+        self.lastAvg = 0
 
         ## Текст ввода-вывода
 
@@ -77,16 +83,19 @@ class GradeCalculator():
         self.gradeOut.setAlignment(Qt.AlignCenter)
         self.gradeOut.setText("Оценка: -")
 
-        ## Кнопки "Загрузить" и "Вычислить"
+        ## Кнопки "Загрузить и вычислить", "Очистить" и "Удалить последнюю..."
 
         self.loadGradeButton = QPushButton(self.window)
         self.clearButton = QPushButton(self.window)
+        self.removeLastButton = QPushButton(self.window)
 
         self.loadGradeButton.clicked.connect(self.loadGrade)
         self.clearButton.clicked.connect(self.clearGrade)
+        self.removeLastButton.clicked.connect(self.removeLastGrade)
 
         self.loadGradeButton.setText("Загрузить и вычислить")
         self.clearButton.setText("Очистить")
+        self.removeLastButton.setText("Удалить последнюю оценку")
 
         ## Меню с видами работ
         
@@ -101,10 +110,17 @@ class GradeCalculator():
         self.grid.addWidget(self.gradeOut, 2, 0, 1, 1)
         self.grid.addWidget(self.loadGradeButton, 1, 1, 1, 1)
         self.grid.addWidget(self.clearButton, 2, 1, 1, 1)
+        self.grid.addWidget(self.removeLastButton, 3, 1, 1, 1)
 
         self.window.setWindowTitle("GradeMapper " + subject)
         self.window.setGeometry(100, 100, 0, 0)
         #self.window.show()
+        
+    def removeLastGrade(self):
+        
+        self.gradesWeighted -= self.lastGrade
+        self.weightsSum -= self.lastWeight
+        self.gradeOut.setText(self.lastAvg)
 
     def loadGrade(self):
         
@@ -120,8 +136,12 @@ class GradeCalculator():
 
         currentWorkWeight = self.types[self.workMenu.currentText()]
                     
-        self.weightsSum += currentWorkWeight
-        self.gradesWeighted += gr * currentWorkWeight
+        self.lastWeight = currentWorkWeight
+        self.lastGrade = gr * currentWorkWeight
+        self.lastAvg = self.gradeOut.text()
+        
+        self.weightsSum += self.lastWeight
+        self.gradesWeighted += self.lastGrade
         
         self.gradeOut.setText("Оценка: " + str(round(self.gradesWeighted / self.weightsSum, 2)))
 
