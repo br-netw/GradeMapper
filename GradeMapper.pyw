@@ -142,7 +142,32 @@ class GradeCalculator():
         self.gradeOut.setText(self.lastAvg)
         
     def makeForecast(self):
-        pass
+        
+        try:
+            desiredGrade = int(self.forecastGrade.text())
+        except Exception:
+            self.forecast.setText("Не является числом")
+            return -1
+            
+        if desiredGrade > 5 or desiredGrade < 1:
+            self.forecast.setText("Не является оценкой")
+            return -1
+        
+        results = {1.0:0, 1.2:0, 1.3:0, 1.5:0}
+        
+        for i in [1.0, 1.2, 1.3, 1.5]:
+            gradesWeightedCopy = self.gradesWeighted
+            weightsSumCopy = self.weightsSum
+            while gradesWeightedCopy / weightsSumCopy < desiredGrade - 0.4:
+                gradesWeightedCopy += i * desiredGrade
+                weightsSumCopy += i
+                res[i] += 1
+                
+        resultsText = ""
+        for i in results.keys():
+            resultsText += "{}: {} оценки\n".format(str(i), str(results[i]))
+            
+        self.forecast.setText(resultsText)
 
     def loadGrade(self):
         
