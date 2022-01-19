@@ -76,28 +76,40 @@ class GradeCalculator():
         self.lastWeight = 1
         self.lastAvg = 0
 
-        ## Текст ввода-вывода
+        ## Текст ввода-вывода и прогнозов
 
         self.gradeIn = QLineEdit(self.window)
         self.gradeOut = QLabel(self.window)
         self.gradeOut.setAlignment(Qt.AlignCenter)
         self.gradeOut.setText("Оценка: -")
+        
+        self.barrier = QLabel(self.window)
+        self.barrier.setAlignment(Qt.AlignCenter)
+        self.barrier.setText("--------------------")
+        
+        self.forecastGrade = QLineEdit(self.window)
+        self.forecast = QLabel(self.window)
+        self.forecast.setAlignment(Qt.AlignCenter)
+        self.forecast.setText("Прогноз: -")
 
-        ## Кнопки "Загрузить и вычислить", "Очистить" и "Удалить последнюю..."
+        ## Кнопки
 
         self.loadGradeButton = QPushButton(self.window)
         self.clearButton = QPushButton(self.window)
         self.removeLastButton = QPushButton(self.window)
+        self.makeForecastButton = QPushButton(self.window)
 
         self.loadGradeButton.clicked.connect(self.loadGrade)
         self.clearButton.clicked.connect(self.clearGrade)
         self.removeLastButton.clicked.connect(self.removeLastGrade)
+        self.makeForecastButton.clicked.connect(self.makeForecast)
 
         self.loadGradeButton.setText("Загрузить и вычислить")
         self.clearButton.setText("Очистить")
         self.removeLastButton.setText("Удалить последнюю оценку")
+        self.makeForecastButton.setText("Сделать прогноз")
 
-        ## Меню с видами работ
+        ## Меню
         
         self.workMenu = QComboBox()
         for i in self.types.keys():
@@ -108,9 +120,16 @@ class GradeCalculator():
         self.grid.addWidget(self.workMenu, 0, 0, 1, 1)
         self.grid.addWidget(self.gradeIn, 1, 0, 1, 1)
         self.grid.addWidget(self.gradeOut, 2, 0, 1, 1)
-        self.grid.addWidget(self.loadGradeButton, 1, 1, 1, 1)
-        self.grid.addWidget(self.clearButton, 2, 1, 1, 1)
-        self.grid.addWidget(self.removeLastButton, 3, 1, 1, 1)
+        
+        self.grid.addWidget(self.loadGradeButton, 0, 1, 1, 1)
+        self.grid.addWidget(self.clearButton, 1, 1, 1, 1)
+        self.grid.addWidget(self.removeLastButton, 2, 1, 1, 1)
+        
+        self.grid.addWidget(self.barrier, 3, 0, 1, 2)
+        
+        self.grid.addWidget(self.forecastGrade, 4, 0, 1, 1)
+        self.grid.addWidget(self.makeForecastButton, 4, 1, 1, 1)
+        self.grid.addWidget(self.forecast, 5, 0, 1, 1)
 
         self.window.setWindowTitle("GradeMapper " + subject)
         self.window.setGeometry(100, 100, 0, 0)
@@ -121,6 +140,9 @@ class GradeCalculator():
         self.gradesWeighted -= self.lastGrade
         self.weightsSum -= self.lastWeight
         self.gradeOut.setText(self.lastAvg)
+        
+    def makeForecast(self):
+        pass
 
     def loadGrade(self):
         
