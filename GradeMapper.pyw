@@ -161,7 +161,7 @@ class GradeCalculator():
             while gradesWeightedCopy / weightsSumCopy < desiredGrade - 0.4:
                 gradesWeightedCopy += i * desiredGrade
                 weightsSumCopy += i
-                res[i] += 1
+                results[i] += 1
                 
         resultsText = ""
         for i in results.keys():
