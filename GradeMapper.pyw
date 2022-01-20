@@ -61,20 +61,16 @@ class GradeCalculator():
         self.window = QDialog()
         self.window.setLayout(self.grid)
         
-        self.gradesWeighted = 0
-        self.weightsSum = 0
-        
         fileVals = open("gradeTypes.json", "r", encoding="utf8")
         self.types = json.load(fileVals)[subject]
         fileVals.close()
 
         keys = list(self.types.keys())
         
-        ## Данные прошлого вывода
+        ## Данные об оценках
         
-        self.lastGrade = 0
-        self.lastWeight = 1
-        self.lastAvg = 0
+        self.weightedGrades = []
+        self.weights = []
 
         ## Текст ввода-вывода и прогнозов
 
@@ -137,9 +133,9 @@ class GradeCalculator():
         
     def removeLastGrade(self):
         
-        self.gradesWeighted -= self.lastGrade
-        self.weightsSum -= self.lastWeight
-        self.gradeOut.setText(self.lastAvg)
+        self.weightedGrades.pop(-1)
+        self.weights.pop(-1)
+        self.outputAverage()
         
     def makeForecast(self):
         
@@ -156,11 +152,11 @@ class GradeCalculator():
         results = {1.0:0, 1.2:0, 1.3:0, 1.5:0}
         
         for i in [1.0, 1.2, 1.3, 1.5]:
-            gradesWeightedCopy = self.gradesWeighted
-            weightsSumCopy = self.weightsSum
-            while gradesWeightedCopy / weightsSumCopy < desiredGrade - 0.4:
-                gradesWeightedCopy += i * desiredGrade
-                weightsSumCopy += i
+            weightedGradesCopy = sum(self.weightedGrades)
+            weightsCopy = sum(self.weights)
+            while weightedGradesCopy / weightsCopy < desiredGrade - 0.4:
+                weightedGradesCopy += i * desiredGrade
+                weightsCopy += i
                 results[i] += 1
                 
         resultsText = ""
@@ -169,6 +165,11 @@ class GradeCalculator():
             
         self.forecast.setText(resultsText)
 
+    def outputAverage(self):
+
+        self.gradeOut.setText("Оценка: " + str(round(sum(self.weightedGrades) / sum(self.weights), 2)))
+        self.gradeIn.clear()
+		
     def loadGrade(self):
         
         try:
@@ -183,26 +184,18 @@ class GradeCalculator():
 
         currentWorkWeight = self.types[self.workMenu.currentText()]
                     
-        self.lastWeight = currentWorkWeight
-        self.lastGrade = gr * currentWorkWeight
-        self.lastAvg = self.gradeOut.text()
-        
-        self.weightsSum += self.lastWeight
-        self.gradesWeighted += self.lastGrade
-        
-        self.gradeOut.setText("Оценка: " + str(round(self.gradesWeighted / self.weightsSum, 2)))
+        self.weightedGrades.append(gr * currentWorkWeight)
+        self.weights.append(currentWorkWeight)
 
-        #print(self.weightsSum, self.gradesWeighted)
-
-        self.gradeIn.clear()
-
+        self.outputAverage()
+		
     def clearGrade(self):
         
         self.gradeIn.clear()
         self.gradeOut.clear()
         
-        self.weightsSum = 0
-        self.gradesWeighted = 0
+        self.weights = []
+        self.weightedGrades = []
         
         self.gradeOut.setText("Оценка: -")
 
