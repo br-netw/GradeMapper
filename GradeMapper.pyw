@@ -136,34 +136,6 @@ class GradeCalculator():
         self.weightedGrades.pop(-1)
         self.weights.pop(-1)
         self.outputAverage()
-        
-    def makeForecast(self):
-        
-        try:
-            desiredGrade = int(self.forecastGrade.text())
-        except Exception:
-            self.forecast.setText("Не является числом")
-            return -1
-            
-        if desiredGrade > 5 or desiredGrade < 1:
-            self.forecast.setText("Не является оценкой")
-            return -1
-        
-        results = {1.0:0, 1.2:0, 1.3:0, 1.5:0}
-        
-        for i in [1.0, 1.2, 1.3, 1.5]:
-            weightedGradesCopy = sum(self.weightedGrades)
-            weightsCopy = sum(self.weights)
-            while weightedGradesCopy / weightsCopy < desiredGrade - 0.4:
-                weightedGradesCopy += i * desiredGrade
-                weightsCopy += i
-                results[i] += 1
-                
-        resultsText = ""
-        for i in results.keys():
-            resultsText += "{}: {} оценки\n".format(str(i), str(results[i]))
-            
-        self.forecast.setText(resultsText)
 
     def outputAverage(self):
 
@@ -175,11 +147,9 @@ class GradeCalculator():
         try:
             gr = int(self.gradeIn.text())
         except Exception:
-            self.gradeOut.setText("Не является числом")
             return -1
 
         if gr < 1 or gr > 5:
-            self.gradeOut.setText("Не является оценкой")
             return -1
 
         currentWorkWeight = self.types[self.workMenu.currentText()]
@@ -198,6 +168,35 @@ class GradeCalculator():
         self.weightedGrades = []
         
         self.gradeOut.setText("Оценка: -")
+
+        self.forecast.setText("Оценка: -")
+        self.forecastGrade.clear()
+
+    def makeForecast(self):
+            
+        try:
+            desiredGrade = int(self.forecastGrade.text())
+        except Exception:
+            return -1
+                
+        if desiredGrade > 5 or desiredGrade < 1:
+            return -1
+            
+        results = {1.0:0, 1.2:0, 1.3:0, 1.5:0}
+            
+        for i in [1.0, 1.2, 1.3, 1.5]:
+            weightedGradesCopy = sum(self.weightedGrades)
+            weightsCopy = sum(self.weights)
+            while weightedGradesCopy / weightsCopy < desiredGrade - 0.4:
+                weightedGradesCopy += i * desiredGrade
+                weightsCopy += i
+                results[i] += 1
+                    
+        resultsText = ""
+        for i in results.keys():
+            resultsText += "{}: {} оцен.\n".format(str(i), str(results[i]))
+                
+        self.forecast.setText(resultsText)
 
 if __name__ == "__main__":
     menu = MainMenu()
