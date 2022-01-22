@@ -183,23 +183,21 @@ class GradeCalculator():
             return -1
             
         workTypes = {1.0:"Д/З", 1.2:"С/Р", 1.3:"Пр/Р", 1.5:"К/Р"}
-
-        #results = []
         resultsText = ""
             
         for i in workTypes.keys():
             forecastGrades = {5:0, 4:0, 3:0, 2:0, 1:0}
             weightedGradesCopy = sum(self.weightedGrades)
             weightsCopy = sum(self.weights)
-            currentTargetGrade = 5
+            currentTargetGrade = desiredGrade
 
             while weightedGradesCopy / weightsCopy < desiredGrade - 0.4:
                 weightedGradesCopy += i * currentTargetGrade
                 weightsCopy += i
                 forecastGrades[currentTargetGrade] += 1
 
-                if (weightedGradesCopy / weightsCopy > desiredGrade - 0.8) and (currentTargetGrade - 1 >= desiredGrade):
-                    currentTargetGrade -= 1
+                if (weightedGradesCopy / weightsCopy > desiredGrade - 0.8) and (currentTargetGrade < 5):
+                    currentTargetGrade += 1
                     continue
 
             resultsText += "{}: ".format(workTypes[i])
