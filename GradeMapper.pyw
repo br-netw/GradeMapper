@@ -61,43 +61,51 @@ class GradeCalculator():
         self.window = QDialog()
         self.window.setLayout(self.grid)
         
-        self.gradesWeighted = 0
-        self.weightsSum = 0
-        
         fileVals = open("gradeTypes.json", "r", encoding="utf8")
         self.types = json.load(fileVals)[subject]
         fileVals.close()
 
         keys = list(self.types.keys())
         
-        ## Данные прошлого вывода
+        ## Данные об оценках
         
-        self.lastGrade = 0
-        self.lastWeight = 1
-        self.lastAvg = 0
+        self.weightedGrades = []
+        self.weights = []
 
-        ## Текст ввода-вывода
+        ## Текст ввода-вывода и прогнозов
 
         self.gradeIn = QLineEdit(self.window)
         self.gradeOut = QLabel(self.window)
         self.gradeOut.setAlignment(Qt.AlignCenter)
         self.gradeOut.setText("Оценка: -")
+        
+        self.barrier = QLabel(self.window)
+        self.barrier.setAlignment(Qt.AlignCenter)
+        self.barrier.setText("--------------------")
+        
+        self.forecastGrade = QLineEdit(self.window)
+        self.forecast = QLabel(self.window)
+        self.forecast.setAlignment(Qt.AlignCenter)
+        self.forecast.setText("Прогноз: -")
 
-        ## Кнопки "Загрузить и вычислить", "Очистить" и "Удалить последнюю..."
+        ## Кнопки
 
         self.loadGradeButton = QPushButton(self.window)
         self.clearButton = QPushButton(self.window)
         self.removeLastButton = QPushButton(self.window)
+        self.makeForecastButton = QPushButton(self.window)
 
         self.loadGradeButton.clicked.connect(self.loadGrade)
         self.clearButton.clicked.connect(self.clearGrade)
         self.removeLastButton.clicked.connect(self.removeLastGrade)
+        self.makeForecastButton.clicked.connect(self.makeForecast)
 
         self.loadGradeButton.setText("Загрузить и вычислить")
         self.clearButton.setText("Очистить")
         self.removeLastButton.setText("Удалить последнюю оценку")
+        self.makeForecastButton.setText("Сделать прогноз")
 
-        ## Меню с видами работ
+        ## Меню
         
         self.workMenu = QComboBox()
         for i in self.types.keys():
@@ -108,9 +116,16 @@ class GradeCalculator():
         self.grid.addWidget(self.workMenu, 0, 0, 1, 1)
         self.grid.addWidget(self.gradeIn, 1, 0, 1, 1)
         self.grid.addWidget(self.gradeOut, 2, 0, 1, 1)
-        self.grid.addWidget(self.loadGradeButton, 1, 1, 1, 1)
-        self.grid.addWidget(self.clearButton, 2, 1, 1, 1)
-        self.grid.addWidget(self.removeLastButton, 3, 1, 1, 1)
+        
+        self.grid.addWidget(self.loadGradeButton, 0, 1, 1, 1)
+        self.grid.addWidget(self.clearButton, 1, 1, 1, 1)
+        self.grid.addWidget(self.removeLastButton, 2, 1, 1, 1)
+        
+        self.grid.addWidget(self.barrier, 3, 0, 1, 2)
+        
+        self.grid.addWidget(self.forecastGrade, 4, 0, 1, 1)
+        self.grid.addWidget(self.makeForecastButton, 4, 1, 1, 1)
+        self.grid.addWidget(self.forecast, 5, 0, 1, 1)
 
         self.window.setWindowTitle("GradeMapper " + subject)
         self.window.setGeometry(100, 100, 0, 0)
@@ -118,46 +133,88 @@ class GradeCalculator():
         
     def removeLastGrade(self):
         
-        self.gradesWeighted -= self.lastGrade
-        self.weightsSum -= self.lastWeight
-        self.gradeOut.setText(self.lastAvg)
+        self.weightedGrades.pop(-1)
+        self.weights.pop(-1)
+        self.outputAverage()
 
+    def outputAverage(self):
+
+        self.gradeOut.setText("Оценка: " + str(round(sum(self.weightedGrades) / sum(self.weights), 2)))
+        self.gradeIn.clear()
+		
     def loadGrade(self):
         
         try:
             gr = int(self.gradeIn.text())
         except Exception:
-            self.gradeOut.setText("Не является числом")
             return -1
 
         if gr < 1 or gr > 5:
-            self.gradeOut.setText("Не является оценкой")
             return -1
 
         currentWorkWeight = self.types[self.workMenu.currentText()]
                     
-        self.lastWeight = currentWorkWeight
-        self.lastGrade = gr * currentWorkWeight
-        self.lastAvg = self.gradeOut.text()
-        
-        self.weightsSum += self.lastWeight
-        self.gradesWeighted += self.lastGrade
-        
-        self.gradeOut.setText("Оценка: " + str(round(self.gradesWeighted / self.weightsSum, 2)))
+        self.weightedGrades.append(gr * currentWorkWeight)
+        self.weights.append(currentWorkWeight)
 
-        #print(self.weightsSum, self.gradesWeighted)
-
-        self.gradeIn.clear()
-
+        self.outputAverage()
+		
     def clearGrade(self):
         
         self.gradeIn.clear()
         self.gradeOut.clear()
         
-        self.weightsSum = 0
-        self.gradesWeighted = 0
+        self.weights = []
+        self.weightedGrades = []
         
         self.gradeOut.setText("Оценка: -")
+
+        self.forecast.setText("Оценка: -")
+        self.forecastGrade.clear()
+
+    def makeForecast(self):
+            
+        try:
+            desiredGrade = int(self.forecastGrade.text())
+        except Exception:
+            return -1
+                
+        if desiredGrade > 5 or desiredGrade < 1:
+            return -1
+            
+        workTypes = {1.0:"Д/З", 1.2:"С/Р", 1.3:"Пр/Р", 1.5:"К/Р"}
+        resultsText = ""
+            
+        for i in workTypes.keys():
+            forecastGrades = {5:0, 4:0, 3:0, 2:0, 1:0}
+            weightedGradesCopy = sum(self.weightedGrades)
+            weightsCopy = sum(self.weights)
+            currentTargetGrade = desiredGrade
+
+            while weightedGradesCopy / weightsCopy < desiredGrade - 0.4:
+                weightedGradesCopy += i * currentTargetGrade
+                weightsCopy += i
+                forecastGrades[currentTargetGrade] += 1
+
+                if (weightedGradesCopy / weightsCopy > desiredGrade - 0.8) and (currentTargetGrade < 5):
+                    currentTargetGrade += 1
+                    continue
+
+            resultsText += "{}: ".format(workTypes[i])
+
+            for j in forecastGrades.keys():
+                if j < desiredGrade:
+                    break
+                resultsText += "{} {}; ".format(forecastGrades[j], j)
+
+            resultsText += "\n"
+
+            
+
+        #for i in workTypes.keys():
+        
+                
+        self.forecast.setText(resultsText)
 
 if __name__ == "__main__":
     menu = MainMenu()
