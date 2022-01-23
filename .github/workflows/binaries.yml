@@ -1,0 +1,39 @@
+
+name: Build binary for Windows
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Setyp Python
+        uses: actions/setup-python@v2.3.1
+        with:
+          python-version: 3.10
+          architecture: x64
+      - name: Setup PyQt5
+        run: pip3 install PyQt5
+      - name: Setup PyInstaller
+        run: pip3 install PyInstaller
+      - name: Build for Windows
+        run: pyinstaller --onefile GradeMapper.pyw
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: EDITME
+          release_name: EDITME
+          draft: True
+          prerelease: False
+      - name: Upload Release Asset for osx-x64
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: GradeMapper.exe
+          asset_name: GradeMapper.exe
+          asset_content_type: application/octet-stream
