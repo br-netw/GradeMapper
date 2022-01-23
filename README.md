@@ -16,9 +16,13 @@
 
 ### Устранение неполадок
 
+На macOS необходимо установить Xcode или Xcode CLT, что можно сделать с помощью
+
+    xcode-select --install
+
 Необходимы дополнительные действия для запуска на Apple Silicon:
 
+    softwareupdate --install-rosetta
     arch -x86_64 pip3 install PyQt5
     arch -x86_64 python3 GradeMapper.pyw
-
 
