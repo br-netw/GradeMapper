@@ -19,7 +19,7 @@ jobs:
       - name: Setup PyInstaller
         run: pip3 install PyInstaller
       - name: Build for Windows
-        working-directory: S{{env.working-directory}}
+        working-directory: ${{env.working-directory}}
         run: pyinstaller --onefile .\GradeMapper.pyw
       - name: Create Release
         id: create_release
