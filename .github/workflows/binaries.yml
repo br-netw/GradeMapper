@@ -18,8 +18,11 @@ jobs:
         run: pip3 install PyQt5
       - name: Setup PyInstaller
         run: pip3 install PyInstaller
+      - name: Prepare repository
+        working-directory: "d:\\"
+        run: git clone https://github.com/br-netw/GradeMapper
       - name: Build for Windows
-        working-directory: ${{env.working-directory}}
+        working-directory: GradeMapper/
         run: pyinstaller --onefile .\GradeMapper.pyw
       - name: Create Release
         id: create_release
