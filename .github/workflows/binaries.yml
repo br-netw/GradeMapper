@@ -28,7 +28,7 @@ jobs:
           release_name: EDITME
           draft: True
           prerelease: False
-      - name: Upload Release Asset for osx-x64
+      - name: Upload Release Asset for Windows-x86_64
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
