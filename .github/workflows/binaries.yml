@@ -22,7 +22,7 @@ jobs:
         working-directory: "d:\\"
         run: git clone https://github.com/br-netw/GradeMapper
       - name: Build for Windows
-        working-directory: "d:\\GradeMapper\ "
+        working-directory: "d:\\GradeMapper"
         run: pyinstaller --onefile GradeMapper.pyw
       - name: Create Release
         id: create_release
