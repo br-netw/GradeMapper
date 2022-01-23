@@ -22,8 +22,8 @@ jobs:
         working-directory: "d:\\"
         run: git clone https://github.com/br-netw/GradeMapper
       - name: Build for Windows
-        working-directory: GradeMapper/
-        run: pyinstaller --onefile .\GradeMapper.pyw
+        working-directory: "d:\\GradeMapper\"
+        run: pyinstaller --onefile GradeMapper.pyw
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
