@@ -23,7 +23,7 @@ jobs:
         run: git clone https://github.com/br-netw/GradeMapper
       - name: Build for Windows
         working-directory: "d:\\GradeMapper"
-        run: pyinstaller --onefile GradeMapper.pyw
+        run: pyinstaller --onefile --add-data "gradeTypes.json;." GradeMapper.pyw
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
