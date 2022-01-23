@@ -1,5 +1,5 @@
 
-name: Build binary for Windows
+name: Prepare release
 
 on: workflow_dispatch
 
