@@ -16,6 +16,8 @@ jobs:
         run: pip3 install PyQt5
       - name: Setup PyInstaller
         run: pip3 install PyInstaller
+      - name: THE MOST IMPORTANT STEP
+        run: cd ..
       - name: Build for Windows
         run: pyinstaller --onefile GradeMapper.pyw
       - name: Create Release
