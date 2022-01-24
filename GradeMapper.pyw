@@ -61,8 +61,9 @@ class GradeCalculator():
         self.window = QDialog()
         self.window.setLayout(self.grid)
         
+        self.subject = subject
         fileVals = open("gradeTypes.json", "r", encoding="utf8")
-        self.types = json.load(fileVals)[subject]
+        self.types = json.load(fileVals)[self.subject]
         fileVals.close()
 
         keys = list(self.types.keys())
@@ -72,13 +73,35 @@ class GradeCalculator():
         self.weightedGrades = []
         self.weights = []
 
-        ## Текст ввода-вывода и прогнозов
+        ## Текст ввода-вывода
 
         self.gradeIn = QLineEdit(self.window)
         self.gradeOut = QLabel(self.window)
         self.gradeOut.setAlignment(Qt.AlignCenter)
         self.gradeOut.setText("Оценка: -")
-        
+
+        ## Кнопки ввода и очистки
+
+        self.loadGradeButton = QPushButton(self.window)
+        self.clearButton = QPushButton(self.window)
+        self.removeLastButton = QPushButton(self.window)
+
+        self.loadGradeButton.clicked.connect(self.loadGrade)
+        self.clearButton.clicked.connect(self.clearGrade)
+        self.removeLastButton.clicked.connect(self.removeLastGrade)
+
+        self.loadGradeButton.setText("Загрузить и вычислить")
+        self.clearButton.setText("Очистить")
+        self.removeLastButton.setText("Удалить последнюю оценку")
+
+        ## Меню
+                
+        self.workMenu = QComboBox()
+        for i in self.types.keys():
+            self.workMenu.addItem(i)
+
+        ## Текст модуля прогнозов
+
         self.barrier = QLabel(self.window)
         self.barrier.setAlignment(Qt.AlignCenter)
         self.barrier.setText("--------------------")
@@ -88,34 +111,40 @@ class GradeCalculator():
         self.forecast.setAlignment(Qt.AlignCenter)
         self.forecast.setText("Прогноз: -")
 
-        ## Кнопки
+        ## Кнопка модуля прогнозов
 
-        self.loadGradeButton = QPushButton(self.window)
-        self.clearButton = QPushButton(self.window)
-        self.removeLastButton = QPushButton(self.window)
         self.makeForecastButton = QPushButton(self.window)
-
-        self.loadGradeButton.clicked.connect(self.loadGrade)
-        self.clearButton.clicked.connect(self.clearGrade)
-        self.removeLastButton.clicked.connect(self.removeLastGrade)
         self.makeForecastButton.clicked.connect(self.makeForecast)
-
-        self.loadGradeButton.setText("Загрузить и вычислить")
-        self.clearButton.setText("Очистить")
-        self.removeLastButton.setText("Удалить последнюю оценку")
         self.makeForecastButton.setText("Сделать прогноз")
 
-        ## Меню
-        
-        self.workMenu = QComboBox()
-        for i in self.types.keys():
-            self.workMenu.addItem(i)
+        ## Текст модуля сохранения
+                
+        self.barrier2 = QLabel(self.window)
+        self.barrier2.setAlignment(Qt.AlignCenter)
+        self.barrier2.setText(self.barrier.text())
+
+        self.gradesFilename = QLineEdit(self.window)
+
+        self.gradeSaveModuleLog = QLabel(self.window)
+        self.gradeSaveModuleLog.setAlignment(Qt.AlignCenter)
+        self.gradeSaveModuleLog.setText(" ")
+
+        ## Кнопки модуля сохранения
+
+        self.writeToFileButton = QPushButton(self.window)
+        self.loadFromFileButton = QPushButton(self.window)
+
+        self.writeToFileButton.clicked.connect(self.writeToFile)
+        self.loadFromFileButton.clicked.connect(self.loadFromFile)
+
+        self.writeToFileButton.setText("Сохранить в файл")
+        self.loadFromFileButton.setText("Загрузить из файла:")
 
         ## Сетка
 
-        self.grid.addWidget(self.workMenu, 0, 0, 1, 1)
         self.grid.addWidget(self.gradeIn, 1, 0, 1, 1)
         self.grid.addWidget(self.gradeOut, 2, 0, 1, 1)
+        self.grid.addWidget(self.workMenu, 0, 0, 1, 1)
         
         self.grid.addWidget(self.loadGradeButton, 0, 1, 1, 1)
         self.grid.addWidget(self.clearButton, 1, 1, 1, 1)
@@ -126,6 +155,15 @@ class GradeCalculator():
         self.grid.addWidget(self.forecastGrade, 4, 0, 1, 1)
         self.grid.addWidget(self.makeForecastButton, 4, 1, 1, 1)
         self.grid.addWidget(self.forecast, 5, 0, 1, 1)
+
+        self.grid.addWidget(self.barrier2, 6, 0, 1, 2)
+
+        self.grid.addWidget(self.gradesFilename, 7, 1, 1, 1)
+
+        self.grid.addWidget(self.loadFromFileButton, 7, 0, 1, 1)
+        self.grid.addWidget(self.writeToFileButton, 8, 0, 1, 2)
+
+        self.grid.addWidget(self.gradeSaveModuleLog, 9, 0, 1, 2)
 
         self.window.setWindowTitle("GradeMapper " + subject)
         self.window.setGeometry(100, 100, 0, 0)
@@ -139,7 +177,7 @@ class GradeCalculator():
 
     def outputAverage(self):
 
-        self.gradeOut.setText("Оценка: " + str(round(sum(self.weightedGrades) / sum(self.weights), 2)))
+        self.gradeOut.setText("Оценка: {}".format(str(round(sum(self.weightedGrades) / sum(self.weights), 2))))
         self.gradeIn.clear()
 		
     def loadGrade(self):
@@ -223,6 +261,32 @@ class GradeCalculator():
                 
         self.forecast.setText(resultsText)
 
+    def writeToFile(self):
+
+        fileName = "{}_{}".format("_".join(self.subject.split(" ")), str(int(sum(self.weightedGrades))))
+        fOut = open(fileName, "w")
+        gradesZipped = dict(zip(self.weightedGrades, self.weights))
+        json.dump(gradesZipped, fOut, indent = 4)
+        fOut.close()
+        self.gradeSaveModuleLog.setText("Сохранено в " + fileName)
+
+    def loadFromFile(self):
+
+        fileName = self.gradesFilename.text()
+        try:
+        	f = open(fileName, "r")
+        except FileNotFoundError:
+        	self.gradeSaveModuleLog.setText("Файл {} не найден".format(fileName))
+        	return -1
+        gradesZipped = json.load(f)
+        f.close()
+        self.weightedGrades = [float(x) for x in list(gradesZipped.keys())]
+        self.weights = list(gradesZipped.values())
+        #print(self.weights)
+        #print(self.weightedGrade)
+        self.gradeSaveModuleLog.setText(" ")
+        self.outputAverage()
+        
 if __name__ == "__main__":
     menu = MainMenu()
     sys.exit(menu.app.exec_())
