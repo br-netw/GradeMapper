@@ -184,6 +184,7 @@ class GradeCalculator():
             
         workTypes = {1.0:"Д/З", 1.2:"С/Р", 1.3:"Пр/Р", 1.5:"К/Р"}
         resultsText = ""
+        suffixes = {1:"-ка" , 2:"-ки", 3:"-ки", 4:"-ки"}
             
         for i in workTypes.keys():
             forecastGrades = {5:0, 4:0, 3:0, 2:0, 1:0}
@@ -203,9 +204,15 @@ class GradeCalculator():
             resultsText += "{}: ".format(workTypes[i])
 
             for j in forecastGrades.keys():
+                if forecastGrades[j] == 0:
+                    continue
                 if j < desiredGrade:
                     break
-                resultsText += "{} {}; ".format(forecastGrades[j], j)
+                if forecastGrades[j] not in suffixes:
+                	suffix = "-ок"
+                else:
+                	suffix = suffixes[int(forecastGrades[j])]
+                resultsText += "{} {}; ".format(forecastGrades[j], str(j) + suffix)
 
             resultsText += "\n"
 
